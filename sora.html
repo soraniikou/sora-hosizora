@@ -45,32 +45,6 @@
     pointer-events: none;
   }
 
-  /* 呼吸の光 */
-  #breath-orb {
-    position: fixed;
-    left: 50%; top: 50%;
-    transform: translate(-50%, -50%);
-    width: 80px; height: 80px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,255,255,0.15), transparent);
-    border: 1px solid rgba(255,255,255,0.2);
-    z-index: 20;
-    animation: breathe 6s ease-in-out infinite;
-  }
-
-  @keyframes breathe {
-    0%, 100% {
-      transform: translate(-50%, -50%) scale(1);
-      opacity: 0.4;
-      box-shadow: 0 0 20px rgba(255,255,255,0.1);
-    }
-    50% {
-      transform: translate(-50%, -50%) scale(1.6);
-      opacity: 0.8;
-      box-shadow: 0 0 60px rgba(255,255,255,0.2);
-    }
-  }
-
   /* 言葉 */
   #word {
     position: fixed;
@@ -124,7 +98,7 @@
     border-radius: 50%;
     border: 1px solid rgba(255,255,255,0.3);
     transform: translate(-50%, -50%) scale(0);
-    animation: rippleOut 1.5s ease-out forwards;
+    animation: rippleOut 4.5s ease-out forwards;
     pointer-events: none;
     z-index: 50;
   }
@@ -154,7 +128,6 @@
 <div class="sky" id="sky1"></div>
 <div class="sky" id="sky2"></div>
 <div class="overlay"></div>
-<div id="breath-orb"></div>
 
 <div id="word">
   <div class="word-main" id="word-text">ただ、ここにいていい</div>
@@ -219,11 +192,7 @@ function showScene(idx) {
   }, 100);
 }
 
-function nextScene(x, y) {
-  if (isTransitioning) return;
-  isTransitioning = true;
-
-  // 波紋
+function createRipple(x, y) {
   const r = document.createElement('div');
   r.className = 'ripple';
   r.style.left = x + 'px';
@@ -231,7 +200,12 @@ function nextScene(x, y) {
   r.style.width = '60px';
   r.style.height = '60px';
   document.body.appendChild(r);
-  setTimeout(() => r.remove(), 1500);
+  setTimeout(() => r.remove(), 4500);
+}
+
+function nextScene() {
+  if (isTransitioning) return;
+  isTransitioning = true;
 
   // 言葉をフェードアウト
   wordEl.classList.remove('visible');
@@ -243,11 +217,15 @@ function nextScene(x, y) {
   }, 1200);
 }
 
-// タップ・クリック
-document.addEventListener('click', e => nextScene(e.clientX, e.clientY));
+// タップ・クリック — どこを触れても波紋
+document.addEventListener('click', e => {
+  createRipple(e.clientX, e.clientY);
+  nextScene();
+});
 document.addEventListener('touchend', e => {
   const t = e.changedTouches[0];
-  nextScene(t.clientX, t.clientY);
+  createRipple(t.clientX, t.clientY);
+  nextScene();
 });
 
 // 初期表示
@@ -255,7 +233,10 @@ showScene(0);
 
 // 60秒で自動的に次へ
 setInterval(() => {
-  if (!isTransitioning) nextScene(window.innerWidth/2, window.innerHeight/2);
+  if (!isTransitioning) {
+    createRipple(window.innerWidth / 2, window.innerHeight / 2);
+    nextScene();
+  }
 }, 60000);
 </script>
 </body>
