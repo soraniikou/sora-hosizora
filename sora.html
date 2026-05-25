@@ -98,7 +98,7 @@
     border-radius: 50%;
     border: 1px solid rgba(255,255,255,0.3);
     transform: translate(-50%, -50%) scale(0);
-    animation: rippleOut 4.5s ease-out forwards;
+    animation: rippleOut 13.5s ease-out forwards;
     pointer-events: none;
     z-index: 50;
   }
@@ -200,7 +200,7 @@ function createRipple(x, y) {
   r.style.width = '60px';
   r.style.height = '60px';
   document.body.appendChild(r);
-  setTimeout(() => r.remove(), 4500);
+  setTimeout(() => r.remove(), 13500);
 }
 
 function nextScene() {
