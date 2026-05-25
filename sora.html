@@ -128,7 +128,7 @@
   }
   #fade.show { opacity: 1; pointer-events: all; }
 
-  /* マウス位置マーク（PC・タップ前のみ） */
+  /* マウス位置マーク（PC・最終場面まで） */
   #cursor-mark {
     position: fixed;
     left: 0;
@@ -214,6 +214,7 @@ const skies = [
 const FINALE_CONTRAIL = 'images/sky-contrail.png';
 const FINALE_MOON = 'images/sky-moon.png';
 const FINALE_MOON_DELAY = 10000;
+const FINALE_MESSAGE = '全ては　大切な人に出会うために起こったのかもしれない';
 
 const messages = [
   'ただ、ここにいていい',
@@ -222,7 +223,6 @@ const messages = [
   '生きていてくれてありがとう',
   '人は変わっていくね',
   '空は続く',
-  '休んでもいい',
 ];
 
 // 実際の写真ファイルがある場合は以下のように上書き
@@ -233,7 +233,6 @@ let messageIndex = 0;
 let finaleActive = false;
 let finaleMoonTimer = null;
 let isTransitioning = false;
-let cursorMarkHidden = false;
 let cursorIdleTimer = null;
 
 function isCoarsePointer() {
@@ -283,11 +282,18 @@ function showFinaleMoon() {
   sky2El.classList.add('visible');
 }
 
+function hideCursorMarkForFinale() {
+  clearTimeout(cursorIdleTimer);
+  cursorMark.classList.remove('visible');
+  cursorMark.setAttribute('aria-hidden', 'true');
+}
+
 function showFinale() {
   finaleActive = true;
   document.body.classList.add('finale');
-  wordEl.classList.remove('visible');
+  hideCursorMarkForFinale();
   hintEl.style.opacity = '0';
+  wordText.textContent = FINALE_MESSAGE;
 
   applyFinalePhoto(sky1El, FINALE_CONTRAIL);
   sky2El.classList.remove('visible');
@@ -295,6 +301,7 @@ function showFinale() {
 
   setTimeout(() => {
     hintEl.style.display = 'none';
+    wordEl.classList.add('visible');
   }, 1200);
 
   finaleMoonTimer = setTimeout(showFinaleMoon, FINALE_MOON_DELAY);
@@ -328,22 +335,15 @@ function nextScene() {
   }, 1200);
 }
 
-function hideCursorMark() {
-  cursorMarkHidden = true;
-  clearTimeout(cursorIdleTimer);
-  cursorMark.classList.remove('visible');
-  cursorMark.setAttribute('aria-hidden', 'true');
-}
-
 function showCursorMark(x, y) {
-  if (cursorMarkHidden || isCoarsePointer()) return;
+  if (finaleActive || isCoarsePointer()) return;
   cursorMark.style.left = x + 'px';
   cursorMark.style.top = y + 'px';
   cursorMark.classList.add('visible');
   cursorMark.setAttribute('aria-hidden', 'false');
   clearTimeout(cursorIdleTimer);
   cursorIdleTimer = setTimeout(() => {
-    if (cursorMarkHidden) return;
+    if (finaleActive) return;
     cursorMark.classList.remove('visible');
     cursorMark.setAttribute('aria-hidden', 'true');
   }, 2000);
@@ -351,13 +351,11 @@ function showCursorMark(x, y) {
 
 // タップ・クリック — どこを触れても波紋
 document.addEventListener('click', e => {
-  hideCursorMark();
   createRipple(e.clientX, e.clientY);
   nextScene();
 });
 document.addEventListener('touchend', e => {
   const t = e.changedTouches[0];
-  hideCursorMark();
   createRipple(t.clientX, t.clientY);
   nextScene();
 });
@@ -369,7 +367,7 @@ document.addEventListener('mousemove', e => {
 });
 
 document.addEventListener('mouseleave', () => {
-  if (cursorMarkHidden || isCoarsePointer()) return;
+  if (finaleActive || isCoarsePointer()) return;
   clearTimeout(cursorIdleTimer);
   cursorMark.classList.remove('visible');
   cursorMark.setAttribute('aria-hidden', 'true');
