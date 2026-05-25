@@ -170,20 +170,85 @@
 
   #cursor-mark.visible { opacity: 1; }
 
-  /* 最終場面（写真の空） */
+  /* 最終場面（自然な青空） */
   body.finale .sky {
-    filter: brightness(0.92) saturate(1.05);
+    filter: brightness(1) saturate(1.08);
     transition: opacity 6s ease;
+    background-repeat: no-repeat;
+  }
+
+  .sky-finale-contrail {
+    background-color: #5a9ec8;
+    background-image:
+      linear-gradient(180deg, #2d6a9e 0%, #4a8ec4 38%, #7eb5dc 62%, #b5d9ef 88%, #d8ecf8 100%),
+      url('images/sky-contrail.png');
+    background-size: 100% 100%, 185% auto;
+    background-position: center, 50% 28%;
+    -webkit-mask-image: radial-gradient(ellipse 78% 58% at 50% 40%, #000 25%, transparent 72%);
+    mask-image: radial-gradient(ellipse 78% 58% at 50% 40%, #000 25%, transparent 72%);
+  }
+
+  .sky-finale-moon {
+    background-color: #3d8fd4;
+    background-image:
+      linear-gradient(180deg, #1e6aab 0%, #3d94d4 30%, #5eb0e8 58%, #8ecae8 82%, #c5e4f8 100%),
+      url('images/sky-moon.png');
+    background-size: 100% 100%, 140% auto;
+    background-position: center, 50% 62%;
+    -webkit-mask-image: radial-gradient(ellipse 88% 72% at 50% 48%, #000 35%, transparent 78%);
+    mask-image: radial-gradient(ellipse 88% 72% at 50% 48%, #000 35%, transparent 78%);
   }
 
   body.finale .overlay {
     background:
       linear-gradient(to bottom,
-        rgba(0, 0, 0, 0.12) 0%,
-        transparent 35%,
-        transparent 75%,
-        rgba(0, 0, 0, 0.2) 100%
+        rgba(30, 80, 130, 0.08) 0%,
+        transparent 40%,
+        transparent 80%,
+        rgba(40, 90, 140, 0.1) 100%
       );
+  }
+
+  #finale-moon {
+    position: fixed;
+    top: 14%;
+    right: 18%;
+    width: min(32vw, 26vh);
+    height: min(32vw, 26vh);
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 5s ease;
+    pointer-events: none;
+  }
+
+  #finale-moon.visible { opacity: 0.9; }
+
+  #finale-moon svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    filter: blur(0.3px);
+  }
+
+  .moon-glow {
+    fill: rgba(255, 255, 255, 0.35);
+    filter: blur(8px);
+  }
+
+  .moon-body {
+    fill: #f6fbff;
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.5))
+            drop-shadow(0 0 28px rgba(220, 235, 255, 0.35));
+  }
+
+  body.finale .word-main {
+    letter-spacing: 0.35em;
+    max-width: 92vw;
+    min-height: 2.5em;
+  }
+
+  body.finale #word.visible {
+    transition: opacity 1.5s ease;
   }
 </style>
 </head>
@@ -198,6 +263,14 @@
 </div>
 
 <div id="hint">tap softly</div>
+<div id="finale-moon" aria-hidden="true">
+  <svg viewBox="0 0 100 100" aria-hidden="true">
+    <circle class="moon-glow" cx="52" cy="50" r="42"/>
+    <path class="moon-body" d="M 58 12
+      A 38 38 0 1 1 58 88
+      A 22 38 0 1 0 58 12 Z"/>
+  </svg>
+</div>
 <div id="cursor-mark" aria-hidden="true"></div>
 <div id="fade"></div>
 
@@ -211,8 +284,6 @@ const skies = [
   { gradient: 'linear-gradient(to bottom, #2d1b33 0%, #4a3560 40%, #7a6090 70%, #b8a8c8 90%, #e8dff0 100%)' },
 ];
 
-const FINALE_CONTRAIL = 'images/sky-contrail.png';
-const FINALE_MOON = 'images/sky-moon.png';
 const FINALE_MOON_DELAY = 10000;
 const FINALE_MESSAGE = '全ては　大切な人に出会うために起こったのかもしれない';
 
@@ -232,8 +303,11 @@ const messages = [
 let messageIndex = 0;
 let finaleActive = false;
 let finaleMoonTimer = null;
+let typewriterTimer = null;
 let isTransitioning = false;
 let cursorIdleTimer = null;
+
+const finaleMoonEl = document.getElementById('finale-moon');
 
 function isCoarsePointer() {
   return window.matchMedia('(pointer: coarse)').matches;
@@ -270,16 +344,36 @@ function showScene(idx) {
   }, 100);
 }
 
-function applyFinalePhoto(el, src) {
-  el.style.backgroundImage = `url('${src}')`;
-  el.style.backgroundSize = 'cover';
-  el.style.backgroundPosition = 'center';
+function applyFinaleContrail(el) {
+  el.className = 'sky sky-finale-contrail';
+}
+
+function applyFinaleMoonSky(el) {
+  el.className = 'sky sky-finale-moon';
+}
+
+function showFinaleTypewriter() {
+  clearTimeout(typewriterTimer);
+  const chars = [...FINALE_MESSAGE];
+  let i = 0;
+  wordText.textContent = '';
+
+  function tick() {
+    if (i < chars.length) {
+      wordText.textContent += chars[i];
+      i++;
+      typewriterTimer = setTimeout(tick, 200);
+    }
+  }
+  tick();
 }
 
 function showFinaleMoon() {
-  applyFinalePhoto(sky2El, FINALE_MOON);
+  applyFinaleMoonSky(sky2El);
   sky1El.classList.remove('visible');
   sky2El.classList.add('visible');
+  finaleMoonEl.classList.add('visible');
+  finaleMoonEl.setAttribute('aria-hidden', 'false');
 }
 
 function hideCursorMarkForFinale() {
@@ -293,15 +387,19 @@ function showFinale() {
   document.body.classList.add('finale');
   hideCursorMarkForFinale();
   hintEl.style.opacity = '0';
-  wordText.textContent = FINALE_MESSAGE;
+  wordEl.classList.remove('visible');
+  wordText.textContent = '';
+  finaleMoonEl.classList.remove('visible');
 
-  applyFinalePhoto(sky1El, FINALE_CONTRAIL);
+  applyFinaleContrail(sky1El);
+  sky2El.className = 'sky';
   sky2El.classList.remove('visible');
   sky1El.classList.add('visible');
 
   setTimeout(() => {
     hintEl.style.display = 'none';
     wordEl.classList.add('visible');
+    showFinaleTypewriter();
   }, 1200);
 
   finaleMoonTimer = setTimeout(showFinaleMoon, FINALE_MOON_DELAY);
