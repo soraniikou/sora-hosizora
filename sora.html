@@ -170,96 +170,20 @@
 
   #cursor-mark.visible { opacity: 1; }
 
-  /* 背景の星 */
-  #night-sky {
-    position: fixed;
-    inset: 0;
-    z-index: 22;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 4s ease, visibility 4s ease;
-    pointer-events: none;
-    background: radial-gradient(ellipse at 50% 30%, rgba(8, 12, 28, 0.5) 0%, rgba(4, 6, 16, 0.85) 100%);
+  /* 最終場面（写真の空） */
+  body.finale .sky {
+    filter: brightness(0.92) saturate(1.05);
+    transition: opacity 6s ease;
   }
 
-  #night-sky.visible {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  #stardust-layer {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-  }
-
-  #night-sky .bg-star {
-    position: absolute;
-    border-radius: 50%;
-    background: radial-gradient(
-      circle,
-      rgba(255, 255, 255, 0.9) 0%,
-      rgba(230, 238, 255, 0.45) 35%,
-      transparent 70%
-    );
-    pointer-events: none;
-  }
-
-  /* オリオン座 */
-  #orion {
-    position: fixed;
-    inset: 0;
-    z-index: 25;
-    opacity: 0;
-    transition: opacity 5s ease;
-    pointer-events: none;
-    overflow: hidden;
-  }
-
-  #orion.visible { opacity: 1; }
-
-  .orion-spin {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: min(92vw, 72vh);
-    aspect-ratio: 100 / 72;
-    transform: translate(-50%, -50%);
-    transform-origin: center center;
-    animation: orionRotate 36s linear infinite;
-    will-change: transform;
-  }
-
-  @keyframes orionRotate {
-    from { transform: translate(-50%, -50%) rotate(0deg); }
-    to { transform: translate(-50%, -50%) rotate(360deg); }
-  }
-
-  .orion-svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-    filter: blur(3.5px);
-  }
-
-  .orion-line {
-    stroke: rgba(255, 255, 255, 0.12);
-    stroke-width: 0.25;
-    fill: none;
-    filter: blur(0.3px);
-  }
-
-  .star-halo { filter: url(#starBlur); }
-  .star-core { filter: url(#starShine); }
-
-  .star-pulse {
-    animation: starPulse 5s ease-in-out infinite;
-  }
-
-  @keyframes starPulse {
-    0%, 100% { opacity: 0.82; }
-    50% { opacity: 1; }
+  body.finale .overlay {
+    background:
+      linear-gradient(to bottom,
+        rgba(0, 0, 0, 0.12) 0%,
+        transparent 35%,
+        transparent 75%,
+        rgba(0, 0, 0, 0.2) 100%
+      );
   }
 </style>
 </head>
@@ -271,98 +195,6 @@
 
 <div id="word">
   <div class="word-main" id="word-text">ただ、ここにいていい</div>
-</div>
-
-<div id="night-sky" aria-hidden="true">
-  <div id="stardust-layer"></div>
-</div>
-
-<div id="orion" aria-hidden="true">
-  <div class="orion-spin">
-    <svg class="orion-svg" viewBox="0 0 100 72" aria-label="オリオン座">
-      <defs>
-        <filter id="orionSoft" x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="2.2" result="soft"/>
-          <feMerge>
-            <feMergeNode in="soft"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-        <filter id="starBlur" x="-200%" y="-200%" width="500%" height="500%">
-          <feGaussianBlur stdDeviation="6" result="blur"/>
-          <feGaussianBlur stdDeviation="3" result="blur2"/>
-          <feMerge>
-            <feMergeNode in="blur"/>
-            <feMergeNode in="blur2"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-        <filter id="starShine" x="-250%" y="-250%" width="600%" height="600%">
-          <feGaussianBlur stdDeviation="3.5" result="glow"/>
-          <feGaussianBlur in="SourceGraphic" stdDeviation="1.2" result="core"/>
-          <feMerge>
-            <feMergeNode in="glow"/>
-            <feMergeNode in="core"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-        <radialGradient id="haloWarm" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#fff5e8" stop-opacity="0.95"/>
-          <stop offset="35%" stop-color="#ffb88a" stop-opacity="0.5"/>
-          <stop offset="100%" stop-color="#ff8c50" stop-opacity="0"/>
-        </radialGradient>
-        <radialGradient id="haloCool" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
-          <stop offset="30%" stop-color="#c8e0ff" stop-opacity="0.55"/>
-          <stop offset="100%" stop-color="#88b8ff" stop-opacity="0"/>
-        </radialGradient>
-        <radialGradient id="haloSoft" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
-          <stop offset="40%" stop-color="#e8eeff" stop-opacity="0.35"/>
-          <stop offset="100%" stop-color="#a0b8ff" stop-opacity="0"/>
-        </radialGradient>
-      </defs>
-      <g filter="url(#orionSoft)">
-      <g class="orion-lines">
-        <line class="orion-line" x1="22" y1="18" x2="78" y2="20"/>
-        <line class="orion-line" x1="22" y1="18" x2="36" y2="42"/>
-        <line class="orion-line" x1="78" y2="20" x2="64" y2="42"/>
-        <line class="orion-line" x1="36" y1="42" x2="50" y2="44"/>
-        <line class="orion-line" x1="50" y1="44" x2="64" y2="42"/>
-        <line class="orion-line" x1="36" y1="42" x2="26" y2="58"/>
-        <line class="orion-line" x1="64" y1="42" x2="74" y2="58"/>
-      </g>
-      <g class="star-pulse" transform="translate(22,18)">
-        <circle class="star-halo" r="9" fill="url(#haloWarm)" opacity="0.7"/>
-        <circle class="star-core" r="1.2" fill="#fffef8"/>
-      </g>
-      <g class="star-pulse" transform="translate(78,20)">
-        <circle class="star-halo" r="6" fill="url(#haloSoft)" opacity="0.65"/>
-        <circle class="star-core" r="0.9" fill="#fff"/>
-      </g>
-      <g class="star-pulse" transform="translate(36,42)">
-        <circle class="star-halo" r="5" fill="url(#haloSoft)" opacity="0.6"/>
-        <circle class="star-core" r="0.75" fill="#fff"/>
-      </g>
-      <g class="star-pulse" transform="translate(50,44)">
-        <circle class="star-halo" r="6.5" fill="url(#haloCool)" opacity="0.75"/>
-        <circle class="star-core" r="1" fill="#fff"/>
-      </g>
-      <g class="star-pulse" transform="translate(64,42)">
-        <circle class="star-halo" r="5" fill="url(#haloSoft)" opacity="0.6"/>
-        <circle class="star-core" r="0.75" fill="#fff"/>
-      </g>
-      <g class="star-pulse" transform="translate(26,58)">
-        <circle class="star-halo" r="5.5" fill="url(#haloSoft)" opacity="0.62"/>
-        <circle class="star-core" r="0.8" fill="#fff"/>
-      </g>
-      <g class="star-pulse" transform="translate(74,58)">
-        <circle class="star-halo" r="8" fill="url(#haloCool)" opacity="0.8"/>
-        <circle class="star-core" r="1.1" fill="#f8fcff"/>
-      </g>
-      </g>
-    </svg>
-  </div>
 </div>
 
 <div id="hint">tap softly</div>
@@ -379,7 +211,9 @@ const skies = [
   { gradient: 'linear-gradient(to bottom, #2d1b33 0%, #4a3560 40%, #7a6090 70%, #b8a8c8 90%, #e8dff0 100%)' },
 ];
 
-const STAR_COUNT = 30;
+const FINALE_CONTRAIL = 'images/sky-contrail.png';
+const FINALE_MOON = 'images/sky-moon.png';
+const FINALE_MOON_DELAY = 10000;
 
 const messages = [
   'ただ、ここにいていい',
@@ -387,7 +221,7 @@ const messages = [
   '呼吸してみる',
   '生きていてくれてありがとう',
   '人は変わっていくね',
-  'それでも空は続く',
+  '空は続く',
   '休んでもいい',
 ];
 
@@ -396,7 +230,8 @@ const messages = [
 // skies[1].image = 'sky2.jpg';
 
 let messageIndex = 0;
-let orionShown = false;
+let finaleActive = false;
+let finaleMoonTimer = null;
 let isTransitioning = false;
 let cursorMarkHidden = false;
 let cursorIdleTimer = null;
@@ -410,8 +245,6 @@ const sky2El = document.getElementById('sky2');
 const wordEl = document.getElementById('word');
 const wordText = document.getElementById('word-text');
 const hintEl = document.getElementById('hint');
-const nightSkyEl = document.getElementById('night-sky');
-const orionEl = document.getElementById('orion');
 const cursorMark = document.getElementById('cursor-mark');
 
 function applySky(el, idx) {
@@ -438,38 +271,33 @@ function showScene(idx) {
   }, 100);
 }
 
-function createStardust() {
-  const layer = document.getElementById('stardust-layer');
-  layer.replaceChildren();
-
-  for (let i = 0; i < STAR_COUNT; i++) {
-    const star = document.createElement('div');
-    star.className = 'bg-star';
-    const size = Math.random() * 1.1 + 0.4;
-    star.style.left = Math.random() * 100 + '%';
-    star.style.top = Math.random() * 100 + '%';
-    star.style.width = size + 'px';
-    star.style.height = size + 'px';
-    star.style.opacity = (Math.random() * 0.35 + 0.45).toFixed(2);
-    layer.appendChild(star);
-  }
+function applyFinalePhoto(el, src) {
+  el.style.backgroundImage = `url('${src}')`;
+  el.style.backgroundSize = 'cover';
+  el.style.backgroundPosition = 'center';
 }
 
-function showOrion() {
-  orionShown = true;
+function showFinaleMoon() {
+  applyFinalePhoto(sky2El, FINALE_MOON);
+  sky1El.classList.remove('visible');
+  sky2El.classList.add('visible');
+}
+
+function showFinale() {
+  finaleActive = true;
+  document.body.classList.add('finale');
   wordEl.classList.remove('visible');
   hintEl.style.opacity = '0';
-  sky1El.style.filter = 'brightness(0.35) saturate(0.7)';
-  sky2El.style.filter = 'brightness(0.35) saturate(0.7)';
+
+  applyFinalePhoto(sky1El, FINALE_CONTRAIL);
+  sky2El.classList.remove('visible');
+  sky1El.classList.add('visible');
 
   setTimeout(() => {
     hintEl.style.display = 'none';
-    nightSkyEl.classList.add('visible');
-    nightSkyEl.setAttribute('aria-hidden', 'false');
-    createStardust();
-    orionEl.classList.add('visible');
-    orionEl.setAttribute('aria-hidden', 'false');
   }, 1200);
+
+  finaleMoonTimer = setTimeout(showFinaleMoon, FINALE_MOON_DELAY);
 }
 
 function createRipple(x, y) {
@@ -484,7 +312,7 @@ function createRipple(x, y) {
 }
 
 function nextScene() {
-  if (isTransitioning || orionShown) return;
+  if (isTransitioning || finaleActive) return;
   isTransitioning = true;
 
   wordEl.classList.remove('visible');
@@ -494,7 +322,7 @@ function nextScene() {
       messageIndex++;
       showScene(messageIndex);
     } else {
-      showOrion();
+      showFinale();
     }
     isTransitioning = false;
   }, 1200);
@@ -547,13 +375,9 @@ document.addEventListener('mouseleave', () => {
   cursorMark.setAttribute('aria-hidden', 'true');
 });
 
-window.addEventListener('resize', () => {
-  if (nightSkyEl.classList.contains('visible')) createStardust();
-});
-
 // 60秒で自動的に次へ
 setInterval(() => {
-  if (!isTransitioning) {
+  if (!isTransitioning && !finaleActive) {
     createRipple(window.innerWidth / 2, window.innerHeight / 2);
     nextScene();
   }
