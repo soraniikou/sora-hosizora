@@ -128,20 +128,44 @@
   }
   #fade.show { opacity: 1; pointer-events: all; }
 
-  /* マウス位置マーク（タップ前のみ →） */
+  /* マウス位置マーク（PC・タップ前のみ） */
   #cursor-mark {
     position: fixed;
     left: 0;
     top: 0;
-    font-size: 1.1rem;
-    font-weight: 200;
-    color: rgba(255, 255, 255, 0.28);
-    line-height: 1;
+    width: 8px;
+    height: 8px;
     pointer-events: none;
     z-index: 60;
-    transform: translate(6px, -50%);
+    transform: translate(-50%, -50%);
     opacity: 0;
-    transition: opacity 0.35s ease;
+    transition: opacity 1.5s ease;
+  }
+
+  @media (pointer: coarse) {
+    #cursor-mark { display: none; }
+  }
+
+  #cursor-mark::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    filter: blur(1px);
+  }
+
+  #cursor-mark::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2px;
+    height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
   }
 
   #cursor-mark.visible { opacity: 1; }
@@ -342,7 +366,7 @@
 </div>
 
 <div id="hint">tap softly</div>
-<div id="cursor-mark" aria-hidden="true">→</div>
+<div id="cursor-mark" aria-hidden="true"></div>
 <div id="fade"></div>
 
 <script>
@@ -375,6 +399,11 @@ let messageIndex = 0;
 let orionShown = false;
 let isTransitioning = false;
 let cursorMarkHidden = false;
+let cursorIdleTimer = null;
+
+function isCoarsePointer() {
+  return window.matchMedia('(pointer: coarse)').matches;
+}
 
 const sky1El = document.getElementById('sky1');
 const sky2El = document.getElementById('sky2');
@@ -473,8 +502,23 @@ function nextScene() {
 
 function hideCursorMark() {
   cursorMarkHidden = true;
+  clearTimeout(cursorIdleTimer);
   cursorMark.classList.remove('visible');
   cursorMark.setAttribute('aria-hidden', 'true');
+}
+
+function showCursorMark(x, y) {
+  if (cursorMarkHidden || isCoarsePointer()) return;
+  cursorMark.style.left = x + 'px';
+  cursorMark.style.top = y + 'px';
+  cursorMark.classList.add('visible');
+  cursorMark.setAttribute('aria-hidden', 'false');
+  clearTimeout(cursorIdleTimer);
+  cursorIdleTimer = setTimeout(() => {
+    if (cursorMarkHidden) return;
+    cursorMark.classList.remove('visible');
+    cursorMark.setAttribute('aria-hidden', 'true');
+  }, 2000);
 }
 
 // タップ・クリック — どこを触れても波紋
@@ -493,15 +537,12 @@ document.addEventListener('touchend', e => {
 showScene(0);
 
 document.addEventListener('mousemove', e => {
-  if (cursorMarkHidden) return;
-  cursorMark.style.left = e.clientX + 'px';
-  cursorMark.style.top = e.clientY + 'px';
-  cursorMark.classList.add('visible');
-  cursorMark.setAttribute('aria-hidden', 'false');
+  showCursorMark(e.clientX, e.clientY);
 });
 
 document.addEventListener('mouseleave', () => {
-  if (cursorMarkHidden) return;
+  if (cursorMarkHidden || isCoarsePointer()) return;
+  clearTimeout(cursorIdleTimer);
   cursorMark.classList.remove('visible');
   cursorMark.setAttribute('aria-hidden', 'true');
 });
