@@ -106,16 +106,16 @@
     bottom: 5vh;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 0.6rem;
+    font-size: 1.2rem;
     letter-spacing: 0.4em;
-    color: rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.75);
     z-index: 30;
     animation: hintFade 4s ease-in-out infinite;
   }
 
   @keyframes hintFade {
-    0%, 100% { opacity: 0.2; }
-    50% { opacity: 0.5; }
+    0%, 100% { opacity: 0.65; }
+    50% { opacity: 1; }
   }
 
   /* 画面タップの波紋 */
@@ -169,7 +169,7 @@
 // 今は美しいグラデーションで代替
 const skies = [
   { gradient: 'linear-gradient(to bottom, #2c3e50 0%, #4a6fa5 40%, #c9a96e 70%, #8b5e3c 100%)', words: ['ただ、ここにいていい'], subs: ['息を吸って　ゆっくり吐く'] },
-  { gradient: 'linear-gradient(to bottom, #1a1a2e 0%, #4a5568 30%, #718096 60%, #a0aec0 85%, #e8d5b7 100%)', words: ['失ったものは　本当にあった', 'だから今　痛い'], subs: ['それでいい', '空はずっとここにある'] },
+  { gradient: 'linear-gradient(to bottom, #1a1a2e 0%, #4a5568 30%, #718096 60%, #a0aec0 85%, #e8d5b7 100%)', words: ['失ったものは　本当にあった'], subs: ['それでいい'] },
   { gradient: 'linear-gradient(to bottom, #0d1117 0%, #1e2d40 40%, #2d4a6e 70%, #4a7fa5 100%)', words: ['呼吸している', 'それだけで　十分'], subs: ['ゆっくり　ゆっくり', '焦らなくていい'] },
   { gradient: 'linear-gradient(to bottom, #2d1b33 0%, #4a3560 40%, #7a6090 70%, #b8a8c8 90%, #e8dff0 100%)', words: ['人は変わり　別れる', 'それでも空は続く'], subs: ['あなたも続いていく', ''] },
 ];
