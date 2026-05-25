@@ -67,13 +67,6 @@
     line-height: 2;
   }
 
-  .word-sub {
-    font-size: clamp(0.6rem, 2vw, 0.75rem);
-    letter-spacing: 0.4em;
-    color: rgba(255,255,255,0.35);
-    margin-top: 0.8rem;
-  }
-
   /* タップヒント */
   #hint {
     position: fixed;
@@ -121,6 +114,59 @@
     transition: opacity 1.5s ease;
   }
   #fade.show { opacity: 1; pointer-events: all; }
+
+  /* オリオン座 */
+  #orion {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 25;
+    opacity: 0;
+    transition: opacity 5s ease;
+    pointer-events: none;
+  }
+
+  #orion.visible { opacity: 1; }
+
+  .orion-svg {
+    width: min(92vw, 72vh);
+    height: auto;
+    overflow: visible;
+  }
+
+  .orion-line {
+    stroke: rgba(255, 255, 255, 0.25);
+    stroke-width: 0.35;
+    fill: none;
+  }
+
+  .orion-star {
+    fill: #fff;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9))
+            drop-shadow(0 0 18px rgba(200, 220, 255, 0.7));
+    animation: starGlow 4s ease-in-out infinite;
+  }
+
+  .orion-star.major {
+    fill: #ffe8d0;
+    filter: drop-shadow(0 0 10px rgba(255, 200, 150, 0.95))
+            drop-shadow(0 0 28px rgba(255, 180, 120, 0.8))
+            drop-shadow(0 0 50px rgba(255, 150, 80, 0.5));
+  }
+
+  .orion-star.bright {
+    fill: #e8f4ff;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 1))
+            drop-shadow(0 0 24px rgba(180, 210, 255, 0.9))
+            drop-shadow(0 0 45px rgba(120, 180, 255, 0.6));
+  }
+
+  @keyframes starGlow {
+    0%, 100% { opacity: 0.75; }
+    50% { opacity: 1; }
+  }
 </style>
 </head>
 <body>
@@ -131,7 +177,27 @@
 
 <div id="word">
   <div class="word-main" id="word-text">ただ、ここにいていい</div>
-  <div class="word-sub" id="word-sub"></div>
+</div>
+
+<div id="orion" aria-hidden="true">
+  <svg class="orion-svg" viewBox="0 0 100 72" aria-label="オリオン座">
+    <g class="orion-lines">
+      <line class="orion-line" x1="22" y1="18" x2="78" y2="20"/>
+      <line class="orion-line" x1="22" y1="18" x2="36" y2="42"/>
+      <line class="orion-line" x1="78" y2="20" x2="64" y2="42"/>
+      <line class="orion-line" x1="36" y1="42" x2="50" y2="44"/>
+      <line class="orion-line" x1="50" y1="44" x2="64" y2="42"/>
+      <line class="orion-line" x1="36" y1="42" x2="26" y2="58"/>
+      <line class="orion-line" x1="64" y1="42" x2="74" y2="58"/>
+    </g>
+    <circle class="orion-star major" cx="22" cy="18" r="2.8"/>
+    <circle class="orion-star" cx="78" cy="20" r="2"/>
+    <circle class="orion-star" cx="36" cy="42" r="1.6"/>
+    <circle class="orion-star bright" cx="50" cy="44" r="1.8"/>
+    <circle class="orion-star" cx="64" cy="42" r="1.6"/>
+    <circle class="orion-star" cx="26" cy="58" r="1.7"/>
+    <circle class="orion-star bright" cx="74" cy="58" r="2.4"/>
+  </svg>
 </div>
 
 <div id="hint">tap softly</div>
@@ -141,25 +207,36 @@
 // 空の写真 — GitHubにpushした後は実際のパスに変える
 // 今は美しいグラデーションで代替
 const skies = [
-  { gradient: 'linear-gradient(to bottom, #2c3e50 0%, #4a6fa5 40%, #c9a96e 70%, #8b5e3c 100%)', words: ['ただ、ここにいていい'], subs: [''] },
-  { gradient: 'linear-gradient(to bottom, #1a1a2e 0%, #4a5568 30%, #718096 60%, #a0aec0 85%, #e8d5b7 100%)', words: ['苦手なことがあってもいい'], subs: ['それでいい'] },
-  { gradient: 'linear-gradient(to bottom, #0d1117 0%, #1e2d40 40%, #2d4a6e 70%, #4a7fa5 100%)', words: ['呼吸してみる', 'それだけで　十分'], subs: ['ゆっくり　ゆっくり', '焦らなくていい'] },
-  { gradient: 'linear-gradient(to bottom, #2d1b33 0%, #4a3560 40%, #7a6090 70%, #b8a8c8 90%, #e8dff0 100%)', words: ['人は変わり　別れる', 'それでも空は続く'], subs: ['あなたも続いていく', ''] },
+  { gradient: 'linear-gradient(to bottom, #2c3e50 0%, #4a6fa5 40%, #c9a96e 70%, #8b5e3c 100%)' },
+  { gradient: 'linear-gradient(to bottom, #1a1a2e 0%, #4a5568 30%, #718096 60%, #a0aec0 85%, #e8d5b7 100%)' },
+  { gradient: 'linear-gradient(to bottom, #0d1117 0%, #1e2d40 40%, #2d4a6e 70%, #4a7fa5 100%)' },
+  { gradient: 'linear-gradient(to bottom, #2d1b33 0%, #4a3560 40%, #7a6090 70%, #b8a8c8 90%, #e8dff0 100%)' },
+];
+
+const messages = [
+  'ただ、ここにいていい',
+  '苦手なことがあってもいい',
+  '呼吸してみる',
+  '生きていてくれてありがとう',
+  '人は変わっていくね',
+  'それでも空は続く',
+  '休んでもいい',
 ];
 
 // 実際の写真ファイルがある場合は以下のように上書き
 // skies[0].image = 'sky1.jpg';
 // skies[1].image = 'sky2.jpg';
 
-let current = 0;
+let messageIndex = 0;
+let orionShown = false;
 let isTransitioning = false;
 
 const sky1El = document.getElementById('sky1');
 const sky2El = document.getElementById('sky2');
 const wordEl = document.getElementById('word');
 const wordText = document.getElementById('word-text');
-const wordSub = document.getElementById('word-sub');
-const fadeEl = document.getElementById('fade');
+const hintEl = document.getElementById('hint');
+const orionEl = document.getElementById('orion');
 
 function applySky(el, idx) {
   const s = skies[idx];
@@ -171,25 +248,29 @@ function applySky(el, idx) {
 }
 
 function showScene(idx) {
-  const s = skies[idx];
-  const active = idx % 2 === 0 ? sky1El : sky2El;
-  const inactive = idx % 2 === 0 ? sky2El : sky1El;
+  const skyIdx = idx % skies.length;
+  const active = skyIdx % 2 === 0 ? sky1El : sky2El;
+  const inactive = skyIdx % 2 === 0 ? sky2El : sky1El;
 
-  applySky(active, idx);
+  applySky(active, skyIdx);
+  wordText.textContent = messages[idx];
 
-  // 言葉をランダム選択
-  const wi = Math.floor(Math.random() * s.words.length);
-  wordText.textContent = s.words[wi];
-  wordSub.textContent = s.subs[wi] || '';
-
-  // フェードイン
   setTimeout(() => {
     inactive.classList.remove('visible');
     active.classList.add('visible');
-    setTimeout(() => {
-      wordEl.classList.add('visible');
-    }, 1500);
+    setTimeout(() => wordEl.classList.add('visible'), 1500);
   }, 100);
+}
+
+function showOrion() {
+  orionShown = true;
+  wordEl.classList.remove('visible');
+  hintEl.style.opacity = '0';
+  setTimeout(() => {
+    hintEl.style.display = 'none';
+    orionEl.classList.add('visible');
+    orionEl.setAttribute('aria-hidden', 'false');
+  }, 1200);
 }
 
 function createRipple(x, y) {
@@ -204,15 +285,18 @@ function createRipple(x, y) {
 }
 
 function nextScene() {
-  if (isTransitioning) return;
+  if (isTransitioning || orionShown) return;
   isTransitioning = true;
 
-  // 言葉をフェードアウト
   wordEl.classList.remove('visible');
 
   setTimeout(() => {
-    current = (current + 1) % skies.length;
-    showScene(current);
+    if (messageIndex < messages.length - 1) {
+      messageIndex++;
+      showScene(messageIndex);
+    } else {
+      showOrion();
+    }
     isTransitioning = false;
   }, 1200);
 }
@@ -228,7 +312,6 @@ document.addEventListener('touchend', e => {
   nextScene();
 });
 
-// 初期表示
 showScene(0);
 
 // 60秒で自動的に次へ
