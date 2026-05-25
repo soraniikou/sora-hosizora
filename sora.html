@@ -224,6 +224,55 @@
       );
   }
 
+  /* 一番星（最終画面・左側） */
+  #first-star {
+    position: fixed;
+    left: 14%;
+    top: 24%;
+    width: 10px;
+    height: 10px;
+    z-index: 20;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 4s ease;
+  }
+
+  #first-star.visible { opacity: 1; }
+
+  #first-star::before {
+    content: '';
+    position: absolute;
+    inset: -20px;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(255, 255, 255, 0.2) 35%,
+      transparent 70%
+    );
+    filter: blur(3px);
+    animation: firstStarGlow 5s ease-in-out infinite;
+  }
+
+  #first-star::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 3px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    filter: blur(0.6px);
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.85), 0 0 16px rgba(255, 255, 255, 0.4);
+  }
+
+  @keyframes firstStarGlow {
+    0%, 100% { opacity: 0.65; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.08); }
+  }
+
   #finale-moon {
     position: fixed;
     top: 14%;
@@ -379,6 +428,8 @@
 <div id="shooting-stars" aria-hidden="true"></div>
 
 <div id="hint">tap softly</div>
+<div id="first-star" aria-hidden="true"></div>
+
 <div id="finale-moon" aria-hidden="true">
   <svg viewBox="0 0 100 100" aria-hidden="true">
     <circle class="moon-glow" cx="52" cy="50" r="42"/>
@@ -430,6 +481,7 @@ let shootingStarTimer = null;
 let shootingStarLoopActive = false;
 
 const finaleMoonEl = document.getElementById('finale-moon');
+const firstStarEl = document.getElementById('first-star');
 const shootingStarsEl = document.getElementById('shooting-stars');
 const backBtn = document.getElementById('back-btn');
 
@@ -600,6 +652,8 @@ function resetToStart() {
   shootingStarsEl.setAttribute('aria-hidden', 'true');
   finaleMoonEl.classList.remove('visible');
   finaleMoonEl.setAttribute('aria-hidden', 'true');
+  firstStarEl.classList.remove('visible');
+  firstStarEl.setAttribute('aria-hidden', 'true');
   backBtn.classList.remove('visible');
 
   sky1El.className = 'sky';
@@ -628,6 +682,9 @@ function showFinale() {
   wordEl.classList.remove('word-single-line');
   finaleMoonEl.classList.remove('visible');
   backBtn.classList.remove('visible');
+
+  firstStarEl.classList.add('visible');
+  firstStarEl.setAttribute('aria-hidden', 'false');
 
   applyFinaleContrail(sky1El);
   sky2El.className = 'sky';
