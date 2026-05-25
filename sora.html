@@ -265,6 +265,111 @@
   body.finale #word.visible {
     transition: opacity 1.5s ease;
   }
+
+  #back-btn {
+    display: none;
+    margin-top: 1.4rem;
+    font-family: inherit;
+    font-size: 0.7rem;
+    font-weight: 200;
+    letter-spacing: 0.4em;
+    color: rgba(255, 255, 255, 0.45);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.4rem 0.8rem;
+    text-transform: lowercase;
+  }
+
+  #back-btn.visible { display: inline-block; }
+
+  #back-btn:hover {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* 流れ星 */
+  #shooting-stars {
+    position: fixed;
+    inset: 0;
+    z-index: 18;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 3s ease;
+    overflow: hidden;
+  }
+
+  #shooting-stars.visible { opacity: 1; }
+
+  .shooting-star {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 200px;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.12) 25%,
+      rgba(255, 255, 255, 0.55) 65%,
+      rgba(255, 255, 255, 0.95) 100%
+    );
+    transform-origin: right center;
+    opacity: 0;
+    animation: shootingStar 10s linear infinite;
+  }
+
+  .shooting-star::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 3px;
+    height: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transform: translate(50%, -50%);
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.9), 0 0 14px rgba(220, 235, 255, 0.5);
+  }
+
+  .shooting-star:nth-child(1) {
+    animation-delay: 0s;
+    --start-x: -15vw;
+    --start-y: 8vh;
+    --end-x: 95vw;
+    --end-y: 55vh;
+    --angle: -32deg;
+  }
+
+  .shooting-star:nth-child(2) {
+    animation-delay: 4s;
+    --start-x: 10vw;
+    --start-y: -5vh;
+    --end-x: 88vw;
+    --end-y: 42vh;
+    --angle: -38deg;
+  }
+
+  .shooting-star:nth-child(3) {
+    animation-delay: 7.5s;
+    --start-x: -8vw;
+    --start-y: 22vh;
+    --end-x: 92vw;
+    --end-y: 68vh;
+    --angle: -28deg;
+  }
+
+  @keyframes shootingStar {
+    0% {
+      transform: translate(var(--start-x), var(--start-y)) rotate(var(--angle));
+      opacity: 0;
+    }
+    4% { opacity: 1; }
+    88% { opacity: 0.75; }
+    100% {
+      transform: translate(var(--end-x), var(--end-y)) rotate(var(--angle));
+      opacity: 0;
+    }
+  }
 </style>
 </head>
 <body>
@@ -276,6 +381,13 @@
 <div id="word">
   <div class="word-main" id="word-text">ただ、ここにいていい</div>
   <div class="word-main word-line2" id="word-text-2"></div>
+  <button type="button" id="back-btn">back</button>
+</div>
+
+<div id="shooting-stars" aria-hidden="true">
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
 </div>
 
 <div id="hint">tap softly</div>
@@ -326,6 +438,8 @@ let isTransitioning = false;
 let cursorIdleTimer = null;
 
 const finaleMoonEl = document.getElementById('finale-moon');
+const shootingStarsEl = document.getElementById('shooting-stars');
+const backBtn = document.getElementById('back-btn');
 
 function isCoarsePointer() {
   return window.matchMedia('(pointer: coarse)').matches;
@@ -390,6 +504,8 @@ function showFinaleTypewriter() {
       wordText2.textContent += chars2[i];
       i++;
       typewriterTimer = setTimeout(tick2, TYPEWRITER_DELAY);
+    } else {
+      backBtn.classList.add('visible');
     }
   }
 
@@ -421,6 +537,34 @@ function hideCursorMarkForFinale() {
   cursorMark.setAttribute('aria-hidden', 'true');
 }
 
+function resetToStart() {
+  clearTimeout(finaleMoonTimer);
+  clearTimeout(typewriterTimer);
+  finaleActive = false;
+  messageIndex = 0;
+  isTransitioning = false;
+
+  document.body.classList.remove('finale');
+  shootingStarsEl.classList.remove('visible');
+  shootingStarsEl.setAttribute('aria-hidden', 'true');
+  finaleMoonEl.classList.remove('visible');
+  finaleMoonEl.setAttribute('aria-hidden', 'true');
+  backBtn.classList.remove('visible');
+
+  sky1El.className = 'sky';
+  sky2El.className = 'sky';
+  sky1El.style.filter = '';
+  sky2El.style.filter = '';
+  sky1El.classList.remove('visible');
+  sky2El.classList.remove('visible');
+
+  hintEl.style.display = '';
+  hintEl.style.opacity = '';
+  wordEl.classList.remove('visible');
+
+  showScene(0);
+}
+
 function showFinale() {
   finaleActive = true;
   document.body.classList.add('finale');
@@ -432,11 +576,15 @@ function showFinale() {
   wordText2.classList.remove('visible-line');
   wordEl.classList.remove('word-single-line');
   finaleMoonEl.classList.remove('visible');
+  backBtn.classList.remove('visible');
 
   applyFinaleContrail(sky1El);
   sky2El.className = 'sky';
   sky2El.classList.remove('visible');
   sky1El.classList.add('visible');
+
+  shootingStarsEl.classList.add('visible');
+  shootingStarsEl.setAttribute('aria-hidden', 'false');
 
   setTimeout(() => {
     hintEl.style.display = 'none';
@@ -489,8 +637,14 @@ function showCursorMark(x, y) {
   }, 2000);
 }
 
+backBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  resetToStart();
+});
+
 // タップ・クリック — どこを触れても波紋
 document.addEventListener('click', e => {
+  if (e.target === backBtn) return;
   createRipple(e.clientX, e.clientY);
   nextScene();
 });
