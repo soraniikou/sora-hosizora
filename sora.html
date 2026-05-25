@@ -304,16 +304,22 @@
     position: absolute;
     left: 0;
     top: 0;
-    width: 200px;
+    width: 600px;
     height: 2px;
     background: linear-gradient(
       90deg,
       transparent 0%,
-      rgba(255, 255, 255, 0.12) 25%,
-      rgba(255, 255, 255, 0.55) 65%,
+      rgba(255, 255, 255, 0.08) 18%,
+      rgba(255, 255, 255, 0.35) 45%,
+      rgba(255, 255, 255, 0.6) 72%,
       rgba(255, 255, 255, 0.95) 100%
     );
     transform-origin: right center;
+    --start-x: -35vw;
+    --start-y: -8vh;
+    --end-x: 115vw;
+    --end-y: 92vh;
+    --angle: -34deg;
     opacity: 0;
     animation: shootingStar 10s linear infinite;
   }
@@ -331,40 +337,13 @@
     box-shadow: 0 0 6px rgba(255, 255, 255, 0.9), 0 0 14px rgba(220, 235, 255, 0.5);
   }
 
-  .shooting-star:nth-child(1) {
-    animation-delay: 0s;
-    --start-x: -15vw;
-    --start-y: 8vh;
-    --end-x: 95vw;
-    --end-y: 55vh;
-    --angle: -32deg;
-  }
-
-  .shooting-star:nth-child(2) {
-    animation-delay: 4s;
-    --start-x: 10vw;
-    --start-y: -5vh;
-    --end-x: 88vw;
-    --end-y: 42vh;
-    --angle: -38deg;
-  }
-
-  .shooting-star:nth-child(3) {
-    animation-delay: 7.5s;
-    --start-x: -8vw;
-    --start-y: 22vh;
-    --end-x: 92vw;
-    --end-y: 68vh;
-    --angle: -28deg;
-  }
-
   @keyframes shootingStar {
     0% {
       transform: translate(var(--start-x), var(--start-y)) rotate(var(--angle));
       opacity: 0;
     }
-    4% { opacity: 1; }
-    88% { opacity: 0.75; }
+    3% { opacity: 1; }
+    90% { opacity: 0.8; }
     100% {
       transform: translate(var(--end-x), var(--end-y)) rotate(var(--angle));
       opacity: 0;
@@ -385,8 +364,6 @@
 </div>
 
 <div id="shooting-stars" aria-hidden="true">
-  <div class="shooting-star"></div>
-  <div class="shooting-star"></div>
   <div class="shooting-star"></div>
 </div>
 
