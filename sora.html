@@ -67,6 +67,21 @@
     line-height: 2;
   }
 
+  .word-line2 {
+    display: none;
+    margin-top: 0.5rem;
+  }
+
+  .word-line2.visible-line { display: block; }
+
+  @media (pointer: coarse) {
+    #word.word-single-line .word-main {
+      white-space: nowrap;
+      letter-spacing: 0.28em;
+      font-size: clamp(0.82rem, 3.2vw, 1.15rem);
+    }
+  }
+
   /* タップヒント */
   #hint {
     position: fixed;
@@ -260,6 +275,7 @@
 
 <div id="word">
   <div class="word-main" id="word-text">ただ、ここにいていい</div>
+  <div class="word-main word-line2" id="word-text-2"></div>
 </div>
 
 <div id="hint">tap softly</div>
@@ -285,7 +301,9 @@ const skies = [
 ];
 
 const FINALE_MOON_DELAY = 10000;
-const FINALE_MESSAGE = '全ては　大切な人に出会うために起こったのかもしれない';
+const FINALE_LINE1 = '全ては　大切な人に出会うために';
+const FINALE_LINE2 = '起こったのかもしれない';
+const TYPEWRITER_DELAY = 400;
 
 const messages = [
   'ただ、ここにいていい',
@@ -317,6 +335,7 @@ const sky1El = document.getElementById('sky1');
 const sky2El = document.getElementById('sky2');
 const wordEl = document.getElementById('word');
 const wordText = document.getElementById('word-text');
+const wordText2 = document.getElementById('word-text-2');
 const hintEl = document.getElementById('hint');
 const cursorMark = document.getElementById('cursor-mark');
 
@@ -335,7 +354,11 @@ function showScene(idx) {
   const inactive = skyIdx % 2 === 0 ? sky2El : sky1El;
 
   applySky(active, skyIdx);
-  wordText.textContent = messages[idx];
+  const msg = messages[idx];
+  wordText.textContent = msg;
+  wordText2.textContent = '';
+  wordText2.classList.remove('visible-line');
+  wordEl.classList.toggle('word-single-line', msg === '人は変わっていくね' && isCoarsePointer());
 
   setTimeout(() => {
     inactive.classList.remove('visible');
@@ -354,18 +377,34 @@ function applyFinaleMoonSky(el) {
 
 function showFinaleTypewriter() {
   clearTimeout(typewriterTimer);
-  const chars = [...FINALE_MESSAGE];
+  const chars1 = [...FINALE_LINE1];
+  const chars2 = [...FINALE_LINE2];
   let i = 0;
   wordText.textContent = '';
+  wordText2.textContent = '';
+  wordText2.classList.remove('visible-line');
+  wordEl.classList.remove('word-single-line');
 
-  function tick() {
-    if (i < chars.length) {
-      wordText.textContent += chars[i];
+  function tick2() {
+    if (i < chars2.length) {
+      wordText2.textContent += chars2[i];
       i++;
-      typewriterTimer = setTimeout(tick, 200);
+      typewriterTimer = setTimeout(tick2, TYPEWRITER_DELAY);
     }
   }
-  tick();
+
+  function tick1() {
+    if (i < chars1.length) {
+      wordText.textContent += chars1[i];
+      i++;
+      typewriterTimer = setTimeout(tick1, TYPEWRITER_DELAY);
+    } else {
+      wordText2.classList.add('visible-line');
+      i = 0;
+      tick2();
+    }
+  }
+  tick1();
 }
 
 function showFinaleMoon() {
@@ -389,6 +428,9 @@ function showFinale() {
   hintEl.style.opacity = '0';
   wordEl.classList.remove('visible');
   wordText.textContent = '';
+  wordText2.textContent = '';
+  wordText2.classList.remove('visible-line');
+  wordEl.classList.remove('word-single-line');
   finaleMoonEl.classList.remove('visible');
 
   applyFinaleContrail(sky1El);
