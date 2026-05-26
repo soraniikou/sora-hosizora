@@ -632,27 +632,77 @@ function showFinaleMoon() {
   finaleMoonEl.setAttribute('aria-hidden', 'false');
 }
 
+function getCelestialExclusionZone() {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const moonSize = Math.min(w * 0.32, h * 0.26);
+  const pad = Math.max(w, h) * 0.07;
+  const starStartX = w * 0.14 + 5;
+  const starStartY = h * 0.24 + 5;
+  const starEndX = starStartX + w * 0.22;
+  const starEndY = starStartY - h * 0.015;
+  const moonStartLeft = w * 0.82 - moonSize;
+  const moonStartTop = h * 0.14;
+  const moonEndLeft = moonStartLeft - w * 0.22;
+  const moonEndTop = moonStartTop + h * 0.01;
+  return {
+    left: Math.min(starStartX, starEndX, moonEndLeft) - pad,
+    top: Math.min(starStartY, starEndY, moonStartTop, moonEndTop) - pad,
+    right: Math.max(starStartX, starEndX, moonStartLeft + moonSize, moonEndLeft + moonSize) + pad,
+    bottom: Math.max(starStartY, starEndY, moonStartTop + moonSize, moonEndTop + moonSize) + pad,
+  };
+}
+
+function pathCrossesCelestialZone(sx, sy, ex, ey, zone) {
+  const steps = 28;
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const x = sx + (ex - sx) * t;
+    const y = sy + (ey - sy) * t;
+    if (x >= zone.left && x <= zone.right && y >= zone.top && y <= zone.bottom) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function randomShootingPath() {
   const w = window.innerWidth;
   const h = window.innerHeight;
   const dist = Math.max(w, h) * 0.85;
-  // 一番星・月（接近含む）より下だけを通る
-  const minY = h * 0.52;
-  const cx = w * (0.1 + Math.random() * 0.8);
-  const cy = minY + (h - minY) * (0.25 + Math.random() * 0.6);
-  const maxDy = (cy - minY) / dist;
-  const dy = (Math.random() * 2 - 1) * maxDy * 0.92;
-  const dx = Math.sqrt(Math.max(0, 1 - dy * dy)) * (Math.random() < 0.5 ? 1 : -1);
-  const sx = cx - dx * dist;
-  const sy = cy - dy * dist;
-  const ex = cx + dx * dist;
-  const ey = cy + dy * dist;
-  const angleRad = Math.atan2(dy, dx);
+  const zone = getCelestialExclusionZone();
+
+  for (let attempt = 0; attempt < 40; attempt++) {
+    const cx = w * (0.08 + Math.random() * 0.84);
+    const cy = h * (0.08 + Math.random() * 0.84);
+    const angleRad = Math.random() * Math.PI * 2;
+    const dx = Math.cos(angleRad);
+    const dy = Math.sin(angleRad);
+    const sx = cx - dx * dist;
+    const sy = cy - dy * dist;
+    const ex = cx + dx * dist;
+    const ey = cy + dy * dist;
+    if (!pathCrossesCelestialZone(sx, sy, ex, ey, zone)) {
+      return {
+        sx,
+        sy,
+        ex,
+        ey,
+        angle: (angleRad * 180) / Math.PI,
+      };
+    }
+  }
+
+  const cx = w * 0.5;
+  const cy = zone.bottom + (h - zone.bottom) * 0.45;
+  const angleRad = (Math.random() - 0.5) * 0.5 * Math.PI;
+  const dx = Math.cos(angleRad);
+  const dy = Math.sin(angleRad);
   return {
-    sx,
-    sy,
-    ex,
-    ey,
+    sx: cx - dx * dist,
+    sy: cy - dy * dist,
+    ex: cx + dx * dist,
+    ey: cy + dy * dist,
     angle: (angleRad * 180) / Math.PI,
   };
 }
