@@ -234,18 +234,15 @@
     z-index: 20;
     pointer-events: none;
     opacity: 0;
-    transition:
-      opacity 4s ease,
-      left 60s linear,
-      top 60s linear;
+    transform: translate(0, 0);
+    transition: opacity 4s ease, transform 60s linear;
   }
 
   #first-star.visible { opacity: 1; }
 
   body.finale.celestial-approach #first-star,
   body.finale.celestial-met #first-star {
-    left: 30%;
-    top: 19%;
+    transform: translate(22vw, -1.5vh);
   }
 
   #first-star::before {
@@ -291,11 +288,8 @@
     height: min(32vw, 26vh);
     z-index: 20;
     opacity: 0;
-    transition:
-      opacity 5s ease,
-      left 60s linear,
-      top 60s linear,
-      right 60s linear;
+    transform: translate(0, 0);
+    transition: opacity 5s ease, transform 60s linear;
     pointer-events: none;
   }
 
@@ -303,18 +297,12 @@
 
   body.finale.celestial-approach #finale-moon,
   body.finale.celestial-met #finale-moon {
-    left: 40%;
-    right: auto;
-    top: 17%;
+    transform: translate(-22vw, 1vh);
   }
 
   body.finale.celestial-met #first-star,
   body.finale.celestial-met #finale-moon {
-    transition:
-      opacity 5s ease,
-      left 0s linear,
-      top 0s linear,
-      right 0s linear;
+    transition: opacity 5s ease, transform 0s linear;
   }
 
   #finale-moon svg {
