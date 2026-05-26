@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>just watching the sky</title>
+<link rel="preload" as="image" href="images/sky-goes-on.png">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&display=swap');
 
@@ -30,8 +31,29 @@
 
   .sky.visible { opacity: 1; }
 
+  body.sky-goes-on-active .sky {
+    transition: opacity 6s ease, filter 6s ease;
+  }
+
+  .sky.sky-scene-goes-on {
+    background-color: #0b121c;
+    background-image:
+      linear-gradient(
+        180deg,
+        rgba(8, 14, 28, 0.45) 0%,
+        rgba(6, 12, 24, 0.62) 55%,
+        rgba(4, 8, 18, 0.78) 100%
+      ),
+      url('images/sky-goes-on.png');
+    background-size: cover;
+    background-position: center 42%;
+    filter: brightness(0.36) saturate(0.72);
+  }
+
   /* 上下グラデオーバーレイ */
   .overlay {
+    transition: background 6s ease;
+  }
     position: fixed;
     inset: 0;
     background:
@@ -475,6 +497,8 @@ const skies = [
   { gradient: 'linear-gradient(to bottom, #2d1b33 0%, #4a3560 40%, #7a6090 70%, #b8a8c8 90%, #e8dff0 100%)' },
 ];
 
+const SKY_GOES_ON_SCENE = 5;
+
 const FINALE_MOON_DELAY = 10000;
 const SHOOTING_STAR_DURATION = 14000;
 const SHOOTING_STAR_PAUSE = 5000;
@@ -528,8 +552,21 @@ const wordText2 = document.getElementById('word-text-2');
 const hintEl = document.getElementById('hint');
 const cursorMark = document.getElementById('cursor-mark');
 
-function applySky(el, idx) {
-  const s = skies[idx];
+function getSkyConfig(messageIdx) {
+  if (messageIdx === SKY_GOES_ON_SCENE) return { scene: 'goes-on' };
+  return skies[messageIdx % skies.length];
+}
+
+function applySky(el, messageIdx) {
+  el.className = 'sky';
+  el.style.backgroundImage = '';
+  el.style.filter = '';
+
+  const s = getSkyConfig(messageIdx);
+  if (s.scene === 'goes-on') {
+    el.classList.add('sky-scene-goes-on');
+    return;
+  }
   if (s.image) {
     el.style.backgroundImage = `url(${s.image})`;
   } else {
@@ -537,11 +574,10 @@ function applySky(el, idx) {
   }
 }
 
-function switchSkyTo(idx) {
-  const skyIdx = idx % skies.length;
-  const active = skyIdx % 2 === 0 ? sky1El : sky2El;
-  const inactive = skyIdx % 2 === 0 ? sky2El : sky1El;
-  applySky(active, skyIdx);
+function switchSkyTo(messageIdx) {
+  const active = messageIdx % 2 === 0 ? sky1El : sky2El;
+  const inactive = messageIdx % 2 === 0 ? sky2El : sky1El;
+  applySky(active, messageIdx);
   inactive.classList.remove('visible');
   active.classList.add('visible');
 }
@@ -574,6 +610,7 @@ function resetAutoAdvanceTimer() {
 
 function showScene(idx) {
   messageIndex = idx;
+  document.body.classList.toggle('sky-goes-on-active', idx === SKY_GOES_ON_SCENE);
   switchSkyTo(idx);
   setTimeout(() => {
     revealMessage(idx);
@@ -782,7 +819,7 @@ function resetToStart() {
   messageIndex = 0;
   isTransitioning = false;
 
-  document.body.classList.remove('finale', 'celestial-approach', 'celestial-met');
+  document.body.classList.remove('finale', 'celestial-approach', 'celestial-met', 'sky-goes-on-active');
   stopShootingStars();
   shootingStarsEl.classList.remove('visible');
   shootingStarsEl.setAttribute('aria-hidden', 'true');
@@ -808,6 +845,7 @@ function resetToStart() {
 
 function showFinale() {
   finaleActive = true;
+  document.body.classList.remove('sky-goes-on-active');
   document.body.classList.add('finale');
   hideCursorMarkForFinale();
   hintEl.style.opacity = '0';
@@ -823,10 +861,13 @@ function showFinale() {
   firstStarEl.classList.add('visible');
   firstStarEl.setAttribute('aria-hidden', 'false');
 
-  applyFinaleContrail(sky1El);
-  sky2El.className = 'sky';
-  sky2El.classList.remove('visible');
-  sky1El.classList.add('visible');
+  const outgoing = sky1El.classList.contains('visible') ? sky1El : sky2El;
+  const incoming = outgoing === sky1El ? sky2El : sky1El;
+  applyFinaleContrail(incoming);
+  outgoing.classList.remove('visible');
+  requestAnimationFrame(() => {
+    incoming.classList.add('visible');
+  });
 
   shootingStarsEl.classList.add('visible');
   shootingStarsEl.setAttribute('aria-hidden', 'false');
