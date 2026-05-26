@@ -1,21 +1,34 @@
-何もしたくない時　ただ感じて眺める
+　　just watching the sky 🌌
 
-何もしたくない時　ただ画面を眺めタップする
-タップする回数も　タップするタイミングも
-お気にめすまま 波紋の光が出るだけです
+A beautiful, minimalist single-page web application designed to help people slow down, breathe, and unburden their minds. 
 
-<img width="518" height="404" alt="orion" src="https://github.com/user-attachments/assets/92364397-217d-4bf2-8166-ff501b7760e6" />
-
-
-タップするのが嫌になったら　画面を閉じ
-瞼を閉じて　休んで下さいね
-
-<img width="395" height="427" alt="orion1" src="https://github.com/user-attachments/assets/b857525b-489c-44a8-a61c-16ed93f259da" />
+"Just being here is enough."
+try↓
+https://sora-hosizora310.vercel.app
 
 
 
+ ✨ Features
 
-アプリ体験
-https://soraniikou.github.io/sora/sora.html
-<img width="405" height="352" alt="mabutani" src="https://github.com/user-attachments/assets/aa68969e-29e9-40c6-ac2e-e84d9273b6bc" />
+- Ambient Visuals:　Smooth, slow-fading sky gradients that transition seamlessly.
+  Poetic Micro-interactions: Gentle ripple effects generated upon clicking or tapping the screen.
+- Automated Progression: The scenes advance on their own if left untouched, guiding the user through a continuous meditative experience.
+- Cinematic Finale: Features a slow-moving crescent moon, a first star, and a dynamic shooting star generator for a deep sense of calm.
+- Fully Responsive: Meticulously optimized for both mobile touch devices and desktop cursors.
+
+ Tech Stack & Core Philosophy
+
+Frontend: Pure HTML5, CSS3 (Custom animations, typography with Google Fonts), and Vanilla JavaScript.
+- **Design Philosophy:** Minimalist, zero-clutter, and deeply focused on mental well-being ("lightening the burden of thought and action").
+
+
+Getting Started
+
+Simply open `index.html` in any modern web browser, or host it on GitHub Pages for a live experience.
+
+
+Clone the repository
+git clone [https://github.com/soraniikou]
+
+
 
