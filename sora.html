@@ -54,10 +54,14 @@
     z-index: 30;
     text-align: center;
     opacity: 0;
-    transition: opacity 3s ease;
+    transition: opacity 1s ease;
   }
 
   #word.visible { opacity: 1; }
+
+  #word.visible.word-enter {
+    transition: opacity 2s ease;
+  }
 
   .word-main {
     font-size: clamp(1rem, 4vw, 1.4rem);
@@ -476,6 +480,10 @@ const CELESTIAL_APPROACH_DURATION = 60000;
 const FINALE_LINE1 = '全ては　大切な人に出会うために';
 const FINALE_LINE2 = '起こったのかもしれない';
 const TYPEWRITER_DELAY = 400;
+const AUTO_ADVANCE_MS = 20000;
+const MSG_FADE_OUT = 1000;
+const MSG_EMPTY_PAUSE = 1250;
+const MSG_FADE_IN = 2000;
 
 const messages = [
   'ただ、ここにいていい',
@@ -499,6 +507,7 @@ let cursorIdleTimer = null;
 let shootingStarTimer = null;
 let shootingStarLoopActive = false;
 let celestialApproachTimer = null;
+let autoAdvanceTimer = null;
 
 const finaleMoonEl = document.getElementById('finale-moon');
 const firstStarEl = document.getElementById('first-star');
@@ -526,22 +535,47 @@ function applySky(el, idx) {
   }
 }
 
-function showScene(idx) {
+function switchSkyTo(idx) {
   const skyIdx = idx % skies.length;
   const active = skyIdx % 2 === 0 ? sky1El : sky2El;
   const inactive = skyIdx % 2 === 0 ? sky2El : sky1El;
-
   applySky(active, skyIdx);
+  inactive.classList.remove('visible');
+  active.classList.add('visible');
+}
+
+function revealMessage(idx) {
   const msg = messages[idx];
   wordText.textContent = msg;
   wordText2.textContent = '';
   wordText2.classList.remove('visible-line');
   wordEl.classList.toggle('word-single-line', msg === '人は変わっていくね' && isCoarsePointer());
+  wordEl.classList.remove('visible', 'word-enter');
+  void wordEl.offsetWidth;
+  wordEl.classList.add('word-enter', 'visible');
+}
 
+function clearAutoAdvanceTimer() {
+  clearTimeout(autoAdvanceTimer);
+}
+
+function resetAutoAdvanceTimer() {
+  clearAutoAdvanceTimer();
+  if (finaleActive || isTransitioning) return;
+  autoAdvanceTimer = setTimeout(() => {
+    if (!isTransitioning && !finaleActive) {
+      createRipple(window.innerWidth / 2, window.innerHeight / 2);
+      nextScene();
+    }
+  }, AUTO_ADVANCE_MS);
+}
+
+function showScene(idx) {
+  messageIndex = idx;
+  switchSkyTo(idx);
   setTimeout(() => {
-    inactive.classList.remove('visible');
-    active.classList.add('visible');
-    setTimeout(() => wordEl.classList.add('visible'), 1500);
+    revealMessage(idx);
+    setTimeout(() => resetAutoAdvanceTimer(), MSG_FADE_IN);
   }, 100);
 }
 
@@ -684,6 +718,7 @@ function resetToStart() {
   clearTimeout(finaleMoonTimer);
   clearTimeout(typewriterTimer);
   clearTimeout(celestialApproachTimer);
+  clearAutoAdvanceTimer();
   finaleActive = false;
   messageIndex = 0;
   isTransitioning = false;
@@ -761,18 +796,33 @@ function createRipple(x, y) {
 function nextScene() {
   if (isTransitioning || finaleActive) return;
   isTransitioning = true;
+  clearAutoAdvanceTimer();
 
-  wordEl.classList.remove('visible');
+  wordEl.classList.remove('visible', 'word-enter');
 
   setTimeout(() => {
-    if (messageIndex < messages.length - 1) {
-      messageIndex++;
-      showScene(messageIndex);
-    } else {
-      showFinale();
-    }
-    isTransitioning = false;
-  }, 1200);
+    wordText.textContent = '';
+    wordText2.textContent = '';
+    wordText2.classList.remove('visible-line');
+    wordEl.classList.remove('word-single-line');
+
+    setTimeout(() => {
+      if (messageIndex < messages.length - 1) {
+        messageIndex++;
+        switchSkyTo(messageIndex);
+        setTimeout(() => {
+          revealMessage(messageIndex);
+          setTimeout(() => {
+            isTransitioning = false;
+            resetAutoAdvanceTimer();
+          }, MSG_FADE_IN);
+        }, 100);
+      } else {
+        isTransitioning = false;
+        showFinale();
+      }
+    }, MSG_EMPTY_PAUSE);
+  }, MSG_FADE_OUT);
 }
 
 function showCursorMark(x, y) {
@@ -819,13 +869,6 @@ document.addEventListener('mouseleave', () => {
   cursorMark.setAttribute('aria-hidden', 'true');
 });
 
-// 60秒で自動的に次へ
-setInterval(() => {
-  if (!isTransitioning && !finaleActive) {
-    createRipple(window.innerWidth / 2, window.innerHeight / 2);
-    nextScene();
-  }
-}, 60000);
 </script>
 </body>
 </html>
