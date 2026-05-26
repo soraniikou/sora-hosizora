@@ -187,15 +187,15 @@
 
   /* 最終場面（自然な青空） */
   body.finale .sky {
-    filter: brightness(1) saturate(1.08);
+    filter: brightness(0.68) saturate(0.95);
     transition: opacity 6s ease;
     background-repeat: no-repeat;
   }
 
   .sky-finale-contrail {
-    background-color: #5a9ec8;
+    background-color: #2a4d66;
     background-image:
-      linear-gradient(180deg, #2d6a9e 0%, #4a8ec4 38%, #7eb5dc 62%, #b5d9ef 88%, #d8ecf8 100%),
+      linear-gradient(180deg, #152d45 0%, #1e3f5c 38%, #2a5270 62%, #3a6582 88%, #4a7590 100%),
       url('images/sky-contrail.png');
     background-size: 100% 100%, 185% auto;
     background-position: center, 50% 28%;
@@ -204,9 +204,9 @@
   }
 
   .sky-finale-moon {
-    background-color: #3d8fd4;
+    background-color: #1a3d58;
     background-image:
-      linear-gradient(180deg, #1e6aab 0%, #3d94d4 30%, #5eb0e8 58%, #8ecae8 82%, #c5e4f8 100%),
+      linear-gradient(180deg, #0f2840 0%, #163a55 30%, #1f4d6a 58%, #2d6080 82%, #3a6f8f 100%),
       url('images/sky-moon.png');
     background-size: 100% 100%, 140% auto;
     background-position: center, 50% 62%;
@@ -217,10 +217,10 @@
   body.finale .overlay {
     background:
       linear-gradient(to bottom,
-        rgba(30, 80, 130, 0.08) 0%,
-        transparent 40%,
-        transparent 80%,
-        rgba(40, 90, 140, 0.1) 100%
+        rgba(0, 12, 28, 0.45) 0%,
+        rgba(0, 18, 38, 0.28) 40%,
+        rgba(0, 14, 32, 0.22) 80%,
+        rgba(0, 8, 22, 0.5) 100%
       );
   }
 
