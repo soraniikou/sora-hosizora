@@ -234,10 +234,19 @@
     z-index: 20;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 4s ease;
+    transition:
+      opacity 4s ease,
+      left 60s linear,
+      top 60s linear;
   }
 
   #first-star.visible { opacity: 1; }
+
+  body.finale.celestial-approach #first-star,
+  body.finale.celestial-met #first-star {
+    left: 30%;
+    top: 19%;
+  }
 
   #first-star::before {
     content: '';
@@ -277,15 +286,36 @@
     position: fixed;
     top: 14%;
     right: 18%;
+    left: auto;
     width: min(32vw, 26vh);
     height: min(32vw, 26vh);
     z-index: 20;
     opacity: 0;
-    transition: opacity 5s ease;
+    transition:
+      opacity 5s ease,
+      left 60s linear,
+      top 60s linear,
+      right 60s linear;
     pointer-events: none;
   }
 
   #finale-moon.visible { opacity: 0.9; }
+
+  body.finale.celestial-approach #finale-moon,
+  body.finale.celestial-met #finale-moon {
+    left: 40%;
+    right: auto;
+    top: 17%;
+  }
+
+  body.finale.celestial-met #first-star,
+  body.finale.celestial-met #finale-moon {
+    transition:
+      opacity 5s ease,
+      left 0s linear,
+      top 0s linear,
+      right 0s linear;
+  }
 
   #finale-moon svg {
     width: 100%;
@@ -360,7 +390,7 @@
   }
 
   .shooting-head.run {
-    animation: shootingHeadFlow 10s linear forwards;
+    animation: shootingHeadFlow 14s linear forwards;
   }
 
   .shooting-trail {
@@ -452,8 +482,9 @@ const skies = [
 ];
 
 const FINALE_MOON_DELAY = 10000;
-const SHOOTING_STAR_DURATION = 10000;
+const SHOOTING_STAR_DURATION = 14000;
 const SHOOTING_STAR_PAUSE = 5000;
+const CELESTIAL_APPROACH_DURATION = 60000;
 const FINALE_LINE1 = '全ては　大切な人に出会うために';
 const FINALE_LINE2 = '起こったのかもしれない';
 const TYPEWRITER_DELAY = 400;
@@ -479,6 +510,7 @@ let isTransitioning = false;
 let cursorIdleTimer = null;
 let shootingStarTimer = null;
 let shootingStarLoopActive = false;
+let celestialApproachTimer = null;
 
 const finaleMoonEl = document.getElementById('finale-moon');
 const firstStarEl = document.getElementById('first-star');
@@ -550,6 +582,7 @@ function showFinaleTypewriter() {
       typewriterTimer = setTimeout(tick2, TYPEWRITER_DELAY);
     } else {
       backBtn.classList.add('visible');
+      startCelestialApproach();
     }
   }
 
@@ -633,6 +666,26 @@ function startShootingStars() {
   spawnShootingStar();
 }
 
+function startCelestialApproach() {
+  if (!finaleActive || document.body.classList.contains('celestial-approach')) return;
+
+  if (!finaleMoonEl.classList.contains('visible')) {
+    clearTimeout(finaleMoonTimer);
+    showFinaleMoon();
+  }
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.body.classList.add('celestial-approach');
+    });
+  });
+
+  clearTimeout(celestialApproachTimer);
+  celestialApproachTimer = setTimeout(() => {
+    document.body.classList.add('celestial-met');
+  }, CELESTIAL_APPROACH_DURATION);
+}
+
 function hideCursorMarkForFinale() {
   clearTimeout(cursorIdleTimer);
   cursorMark.classList.remove('visible');
@@ -642,11 +695,12 @@ function hideCursorMarkForFinale() {
 function resetToStart() {
   clearTimeout(finaleMoonTimer);
   clearTimeout(typewriterTimer);
+  clearTimeout(celestialApproachTimer);
   finaleActive = false;
   messageIndex = 0;
   isTransitioning = false;
 
-  document.body.classList.remove('finale');
+  document.body.classList.remove('finale', 'celestial-approach', 'celestial-met');
   stopShootingStars();
   shootingStarsEl.classList.remove('visible');
   shootingStarsEl.setAttribute('aria-hidden', 'true');
@@ -682,6 +736,7 @@ function showFinale() {
   wordEl.classList.remove('word-single-line');
   finaleMoonEl.classList.remove('visible');
   backBtn.classList.remove('visible');
+  document.body.classList.remove('celestial-approach', 'celestial-met');
 
   firstStarEl.classList.add('visible');
   firstStarEl.setAttribute('aria-hidden', 'false');
