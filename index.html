@@ -479,9 +479,8 @@ const FINALE_MOON_DELAY = 10000;
 const SHOOTING_STAR_DURATION = 14000;
 const SHOOTING_STAR_PAUSE = 5000;
 const CELESTIAL_APPROACH_DURATION = 60000;
-const FINALE_LINE1 = 'maybe all of it happened';
-const FINALE_LINE2 = 'so we could meet the one who matters';
-const TYPEWRITER_DELAY = 120;
+const FINALE_MESSAGE = 'Sleep well and have sweet dreams';
+const FINALE_TYPEWRITER_DELAY = 180;
 const AUTO_ADVANCE_MS = 20000;
 const MSG_FADE_OUT = 1000;
 const MSG_EMPTY_PAUSE = 1250;
@@ -591,37 +590,24 @@ function applyFinaleMoonSky(el) {
 
 function showFinaleTypewriter() {
   clearTimeout(typewriterTimer);
-  const chars1 = [...FINALE_LINE1];
-  const chars2 = [...FINALE_LINE2];
+  const chars = [...FINALE_MESSAGE];
   let i = 0;
   wordText.textContent = '';
   wordText2.textContent = '';
   wordText2.classList.remove('visible-line');
   wordEl.classList.remove('word-single-line');
 
-  function tick2() {
-    if (i < chars2.length) {
-      wordText2.textContent += chars2[i];
+  function tick() {
+    if (i < chars.length) {
+      wordText.textContent += chars[i];
       i++;
-      typewriterTimer = setTimeout(tick2, TYPEWRITER_DELAY);
+      typewriterTimer = setTimeout(tick, FINALE_TYPEWRITER_DELAY);
     } else {
       backBtn.classList.add('visible');
       startCelestialApproach();
     }
   }
-
-  function tick1() {
-    if (i < chars1.length) {
-      wordText.textContent += chars1[i];
-      i++;
-      typewriterTimer = setTimeout(tick1, TYPEWRITER_DELAY);
-    } else {
-      wordText2.classList.add('visible-line');
-      i = 0;
-      tick2();
-    }
-  }
-  tick1();
+  tick();
 }
 
 function showFinaleMoon() {
