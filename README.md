@@ -6,6 +6,9 @@ A beautiful, minimalist single-page web application designed to help people slow
 try↓
 https://sora-hosizora310.vercel.app
 
+![0928](./0928.png)
+![hosizora2](./hosizora2.png)
+![hosizora1](./hosizora1.png)
 
 
  ✨ Features
