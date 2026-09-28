@@ -8,7 +8,7 @@ https://sora-hosizora310.vercel.app
 
 ![0928](./0928.png)
 ![hosizora2](./hosizora2.png)
-![hosizora1](./hosizora1.png)
+![hosizora3](./hosizora3.png)
 
 
  ✨ Features
